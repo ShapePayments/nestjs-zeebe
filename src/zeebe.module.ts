@@ -1,21 +1,20 @@
 import { Module, OnModuleDestroy, DynamicModule, Provider, Logger } from '@nestjs/common';
 import * as ZB from 'zeebe-node';
-import { ModuleRef } from '@nestjs/core';
 import { ZEEBE_OPTIONS_PROVIDER, ZEEBE_CONNECTION_PROVIDER } from './zeebe.constans';
 import { ZeebeClientOptions, ZeebeAsyncOptions } from './zeebe.interfaces';
 
 @Module({})
 export class ZeebeModule implements OnModuleDestroy {
-    constructor(private readonly moduleRef: ModuleRef) {}
+    constructor() {}
 
     public static forRoot(options : ZeebeClientOptions): DynamicModule {
         const optionsProviders: Provider[] = [];
         const connectionProviders: Provider[] = [];
-    
+
         optionsProviders.push(this.createOptionsProvider(options));
-    
+
         connectionProviders.push(this.createConnectionProvider());
-        
+
         return {
           global: true,
           module: ZeebeModule,
@@ -46,7 +45,7 @@ export class ZeebeModule implements OnModuleDestroy {
           exports: connectionProviders,
         };
       }
-    
+
     public static forFeature(): DynamicModule {
         return {
             module: ZeebeModule,
@@ -59,7 +58,7 @@ export class ZeebeModule implements OnModuleDestroy {
             useValue: options,
         };
     }
-    
+
     private static createConnectionProvider(): Provider {
         return {
             provide: ZEEBE_CONNECTION_PROVIDER,

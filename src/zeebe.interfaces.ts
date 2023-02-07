@@ -18,7 +18,7 @@ export interface ZeebeWorkerProperties {
  * @interface ZeebeClientOptions
  */
 export interface ZeebeClientOptions {
-    gatewayAddress?: string;
+    gatewayAddress: string;
     options?: ZBWorkerOptions & ZBClientOptions;
 }
 
@@ -31,7 +31,7 @@ export interface ZeebeClientOptions {
 export interface ZeebeAsyncOptions {
     imports?: any[];
     inject?: any[];
-    useFactory?: (
+    useFactory: (
         ...args: any[]
     ) => Promise<ZeebeClientOptions> | ZeebeClientOptions;
 }

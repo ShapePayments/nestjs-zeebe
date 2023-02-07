@@ -2,9 +2,6 @@ import { Server, CustomTransportStrategy } from "@nestjs/microservices";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ZEEBE_CONNECTION_PROVIDER } from "../zeebe.constans";
 import {
-  ICustomHeaders,
-  IInputVariables,
-  IOutputVariables,
   ZBClient,
   ZBWorkerTaskHandler,
 } from "zeebe-node";
@@ -43,21 +40,20 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
         let workerOptions = {
           id: "",
           taskType: "",
-          handler: ((job, worker, complete) =>
+          handler: ((job: any, worker: any, complete: any) =>
             value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
           options: {},
           onConnectionError: undefined,
         };
-        let jsonKey: ZeebeWorkerProperties = null;
         // See if it's a json, if so use it's data
         try {
-          jsonKey = JSON.parse(key) as ZeebeWorkerProperties;
+          let jsonKey = JSON.parse(key) as ZeebeWorkerProperties;
           workerOptions.taskType = jsonKey.type;
           workerOptions.options = jsonKey.options || {};
 
           workerOptions.id = `${workerOptions.taskType}_${process.pid}`;
           //workerOptions.id, workerOptions.taskType, workerOptions.handler, workerOptions.options
-          const zbWorker = this.client.createWorker({
+          this.client.createWorker({
             id: workerOptions.id,
             taskHandler: workerOptions.handler, // as ZBWorkerTaskHandler<IInputVariables, ICustomHeaders, IOutputVariables>,
             taskType: workerOptions.taskType,
