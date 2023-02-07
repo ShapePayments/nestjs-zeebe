@@ -4,3 +4,4 @@
 /.nyc_output
 test-results.xml
 .history
+.idea
