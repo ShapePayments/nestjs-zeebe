@@ -1,12 +1,9 @@
-import { Server, CustomTransportStrategy } from "@nestjs/microservices";
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { ZEEBE_CONNECTION_PROVIDER } from "../zeebe.constans";
-import {
-  ZBClient,
-  ZBWorkerTaskHandler,
-} from "zeebe-node";
-import * as process from "process";
-import { ZeebeWorkerProperties } from "../zeebe.interfaces";
+import { Server, CustomTransportStrategy } from '@nestjs/microservices';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ZEEBE_CONNECTION_PROVIDER } from '../zeebe.constans';
+import { ZBClient, ZBWorkerTaskHandler } from 'zeebe-node';
+import * as process from 'process';
+import { ZeebeWorkerProperties } from '../zeebe.interfaces';
 
 /**
  * A customer transport for Zeebe.
@@ -18,9 +15,7 @@ import { ZeebeWorkerProperties } from "../zeebe.interfaces";
  */
 @Injectable()
 export class ZeebeServer extends Server implements CustomTransportStrategy {
-  constructor(
-    @Inject(ZEEBE_CONNECTION_PROVIDER) private readonly client: ZBClient
-  ) {
+  constructor(@Inject(ZEEBE_CONNECTION_PROVIDER) private readonly client: ZBClient) {
     super();
   }
 
@@ -30,24 +25,24 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
   }
 
   public close() {
-    this.client.close().then(() => Logger.log("All workers closed"));
+    this.client.close().then(() => Logger.log('All workers closed'));
   }
 
   private init(): void {
     const handlers = this.getHandlers();
     handlers.forEach((value, key: any, map) => {
-      if (typeof key === "string" && key.includes("{")) {
-        let workerOptions = {
-          id: "",
-          taskType: "",
+      if (typeof key === 'string' && key.includes('{')) {
+        const workerOptions = {
+          id: '',
+          taskType: '',
           handler: ((job: any, worker: any, complete: any) =>
-            value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
+              value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
           options: {},
-          onConnectionError: undefined,
+          onConnectionError: undefined
         };
         // See if it's a json, if so use it's data
         try {
-          let jsonKey = JSON.parse(key) as ZeebeWorkerProperties;
+          const jsonKey = JSON.parse(key) as ZeebeWorkerProperties;
           workerOptions.taskType = jsonKey.type;
           workerOptions.options = jsonKey.options || {};
 
@@ -57,10 +52,10 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
             id: workerOptions.id,
             taskHandler: workerOptions.handler, // as ZBWorkerTaskHandler<IInputVariables, ICustomHeaders, IOutputVariables>,
             taskType: workerOptions.taskType,
-            ...workerOptions.options,
+            ...workerOptions.options
           });
         } catch (ex) {
-          this.logger.error("Zeebe error:", ex);
+          this.logger.error('Zeebe error:', ex);
         }
       }
     });

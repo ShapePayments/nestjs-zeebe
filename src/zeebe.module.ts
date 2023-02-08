@@ -5,69 +5,67 @@ import { ZeebeClientOptions, ZeebeAsyncOptions } from './zeebe.interfaces';
 
 @Module({})
 export class ZeebeModule implements OnModuleDestroy {
-    constructor() {}
+  constructor() {}
 
-    public static forRoot(options : ZeebeClientOptions): DynamicModule {
-        const optionsProviders: Provider[] = [];
-        const connectionProviders: Provider[] = [];
+  public static forRoot(options: ZeebeClientOptions): DynamicModule {
+    const optionsProviders: Provider[] = [];
+    const connectionProviders: Provider[] = [];
 
-        optionsProviders.push(this.createOptionsProvider(options));
+    optionsProviders.push(this.createOptionsProvider(options));
 
-        connectionProviders.push(this.createConnectionProvider());
+    connectionProviders.push(this.createConnectionProvider());
 
-        return {
-          global: true,
-          module: ZeebeModule,
-          providers: [
-            ...optionsProviders,
-            ...connectionProviders,
-          ],
-          exports: connectionProviders,
-        };
-    }
+    return {
+      global: true,
+      module: ZeebeModule,
+      providers: [...optionsProviders, ...connectionProviders],
+      exports: connectionProviders
+    };
+  }
 
-    public static forRootAsync(options: ZeebeAsyncOptions): DynamicModule {
-        const connectionProviders: Provider[] = [];
-        connectionProviders.push(this.createConnectionProvider());
+  public static forRootAsync(options: ZeebeAsyncOptions): DynamicModule {
+    const connectionProviders: Provider[] = [];
+    connectionProviders.push(this.createConnectionProvider());
 
-        return {
-          global: true,
-          module: ZeebeModule,
-          imports: options.imports || [],
-          providers: [
-            {
-              provide: ZEEBE_OPTIONS_PROVIDER,
-              useFactory: options.useFactory,
-              inject: options.inject || [],
-            },
-            ...connectionProviders,
-          ],
-          exports: connectionProviders,
-        };
-      }
+    return {
+      global: true,
+      module: ZeebeModule,
+      imports: options.imports || [],
+      providers: [
+        {
+          provide: ZEEBE_OPTIONS_PROVIDER,
+          useFactory: options.useFactory,
+          inject: options.inject || []
+        },
+        ...connectionProviders
+      ],
+      exports: connectionProviders
+    };
+  }
 
-    public static forFeature(): DynamicModule {
-        return {
-            module: ZeebeModule,
-        };
-    }
+  public static forFeature(): DynamicModule {
+    return {
+      module: ZeebeModule
+    };
+  }
 
-    private static createOptionsProvider(options : ZeebeClientOptions): Provider {
-      return {
-            provide: ZEEBE_OPTIONS_PROVIDER,
-            useValue: options,
-        };
-    }
+  private static createOptionsProvider(options: ZeebeClientOptions): Provider {
+    return {
+      provide: ZEEBE_OPTIONS_PROVIDER,
+      useValue: options
+    };
+  }
 
-    private static createConnectionProvider(): Provider {
-        return {
-            provide: ZEEBE_CONNECTION_PROVIDER,
-            //TODO resolve host url: do I need to? Seems to work aready? Just verify
-            useFactory: async (config: ZeebeClientOptions ) => new ZB.ZBClient(config.gatewayAddress, config.options),
-            inject: [ZEEBE_OPTIONS_PROVIDER],
-        };
-    }
-    onModuleDestroy() {
-        Logger.log('Zeebe Module destroyed')
-    }
+  private static createConnectionProvider(): Provider {
+    return {
+      provide: ZEEBE_CONNECTION_PROVIDER,
+      //TODO resolve host url: do I need to? Seems to work aready? Just verify
+      useFactory: async (config: ZeebeClientOptions) => new ZB.ZBClient(config.gatewayAddress, config.options),
+      inject: [ZEEBE_OPTIONS_PROVIDER]
+    };
+  }
+
+  onModuleDestroy() {
+    Logger.log('Zeebe Module destroyed');
+  }
 }
