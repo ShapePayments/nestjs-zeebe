@@ -1,0 +1,117 @@
+name: CI Pre-build
+run-name: Test project before building ${{ github.actor }}
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: eu-west-1
+
+jobs:
+  pre:
+    name: .pre
+    runs-on: [ self-hosted, dev-manager-appcicd ]
+
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      docker_username: ${{ steps.login-ecr.outputs.docker_username_820029312476_dkr_ecr_eu_west_1_amazonaws_com }}
+      docker_password: ${{ steps.login-ecr.outputs.docker_password_820029312476_dkr_ecr_eu_west_1_amazonaws_com }}
+
+    steps:
+      - name: Build information
+        run: |
+          echo "The job was automatically triggered by a ${{ github.event_name }} event." && \
+          echo "This job is now running on a ${{ runner.os }}!" && \
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - name: Check Jira-tasks
+        run: echo "Jira tasks will be implemented later"
+
+      - name: Check Pull-request rules
+        run: echo "Pull-request rules will be implemented later"
+
+      - name: Get credentials
+        id: creds
+        uses: ShapePayments/actions/aws-credentials@v1
+        with:
+          credentials_file: '/home/runner_github/.aws/credentials'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ steps.creds.outputs.aws_access_key_id }}
+          aws-secret-access-key: ${{ steps.creds.outputs.aws_secret_access_key }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: 'false'
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+  check:
+    name: Analyze code
+    runs-on: [self-hosted, dev-manager-appcicd]
+    needs: [pre]
+    container:
+      image: ${{ needs.pre.outputs.registry }}/build-tools:master
+      credentials:
+        username: ${{ needs.pre.outputs.docker_username }}
+        password: ${{ needs.pre.outputs.docker_password }}
+      options: "-u 2001"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: List files in the repository
+        run: "ls -la"
+
+      - name: Audit modules
+        run: npm audit --audit-level critical
+
+      - name: Prepare
+        run: npm ci
+
+      - name: Check prettiness of the code
+        run: npx prettier -c "src/**/*.ts"
+
+      - name: Lint the code
+        run: npx eslint "src/**/*.ts" -f json -o .report/eslint.json
+
+      - name: Analyze code for leaks
+        #        run: gitleaks detect --source="."
+        run: |
+          echo "::warning title=Code leaks disabled::Code leaks check temporary disabled! Don't forget to enable it later!"
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Unit-tests
+        run: npm run test:cov
+
+      - name: SonarQube Analyzer
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Failer
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  post:
+    name: .post
+    runs-on: [self-hosted, dev-manager-appcicd]
+    needs: [pre, check]
+
+    steps:
+      - name: Pre job results
+        run: echo "Checking has finished"
