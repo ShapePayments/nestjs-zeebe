@@ -16,12 +16,7 @@ env:
 jobs:
   pre:
     name: .pre
-    runs-on: [ self-hosted, dev-manager-appcicd ]
-
-    outputs:
-      registry: ${{ steps.login-ecr.outputs.registry }}
-      docker_username: ${{ steps.login-ecr.outputs.docker_username_820029312476_dkr_ecr_eu_west_1_amazonaws_com }}
-      docker_password: ${{ steps.login-ecr.outputs.docker_password_820029312476_dkr_ecr_eu_west_1_amazonaws_com }}
+    runs-on: ubuntu
 
     steps:
       - name: Build information
@@ -30,39 +25,12 @@ jobs:
           echo "This job is now running on a ${{ runner.os }}!" && \
           echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
 
-      - name: Check Jira-tasks
-        run: echo "Jira tasks will be implemented later"
-
-      - name: Check Pull-request rules
-        run: echo "Pull-request rules will be implemented later"
-
-      - name: Get credentials
-        id: creds
-        uses: ShapePayments/actions/aws-credentials@v1
-        with:
-          credentials_file: '/home/runner_github/.aws/credentials'
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ steps.creds.outputs.aws_access_key_id }}
-          aws-secret-access-key: ${{ steps.creds.outputs.aws_secret_access_key }}
-          aws-region: ${{ env.AWS_REGION }}
-          mask-aws-account-id: 'false'
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
   check:
     name: Analyze code
-    runs-on: [self-hosted, dev-manager-appcicd]
-    needs: [pre]
+    runs-on: [ ubuntu]
+    needs: [ pre ]
     container:
-      image: ${{ needs.pre.outputs.registry }}/build-tools:master
-      credentials:
-        username: ${{ needs.pre.outputs.docker_username }}
-        password: ${{ needs.pre.outputs.docker_password }}
+      image: node:18.12.1
       options: "-u 2001"
 
     steps:
@@ -84,11 +52,6 @@ jobs:
       - name: Lint the code
         run: npx eslint "src/**/*.ts" -f json -o .report/eslint.json
 
-      - name: Analyze code for leaks
-        #        run: gitleaks detect --source="."
-        run: |
-          echo "::warning title=Code leaks disabled::Code leaks check temporary disabled! Don't forget to enable it later!"
-
       - name: Build
         run: npm run build
 
@@ -109,7 +72,7 @@ jobs:
 
   post:
     name: .post
-    runs-on: [self-hosted, dev-manager-appcicd]
+    runs-on: ubuntu
     needs: [pre, check]
 
     steps:
