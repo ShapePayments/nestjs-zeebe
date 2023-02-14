@@ -31,7 +31,6 @@ jobs:
     needs: [ pre ]
     container:
       image: node:18.12.1
-      options: --user root
 
     steps:
       - name: Check out repository code
@@ -44,7 +43,7 @@ jobs:
         run: npm audit --audit-level critical
 
       - name: Prepare
-        run: npm ci
+        run: npm ci --omit=dev --ignore-scripts
 
       - name: Check prettiness of the code
         run: npx prettier -c "src/**/*.ts"
