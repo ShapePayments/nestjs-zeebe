@@ -43,7 +43,7 @@ jobs:
         run: npm audit --audit-level critical
 
       - name: Prepare
-        run: npm i --omit=dev --ignore-scripts
+        run: npm i --ignore-scripts
 
       - name: Check prettiness of the code
         run: npx prettier -c "src/**/*.ts"
