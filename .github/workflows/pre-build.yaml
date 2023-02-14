@@ -31,6 +31,7 @@ jobs:
     needs: [ pre ]
     container:
       image: node:18.12.1
+      options: --user root
 
     steps:
       - name: Check out repository code
