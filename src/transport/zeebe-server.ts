@@ -19,24 +19,24 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
     super();
   }
 
-  public async listen(callback: () => void) {
+  public async listen(callback: () => void): Promise<void> {
     this.init();
     callback();
   }
 
-  public close() {
+  public close(): void {
     this.client.close().then(() => Logger.log('All workers closed'));
   }
 
   private init(): void {
     const handlers = this.getHandlers();
-    handlers.forEach((value, key: any, map) => {
+    handlers.forEach((value, key: any) => {
       if (typeof key === 'string' && key.includes('{')) {
         const workerOptions = {
           id: '',
           taskType: '',
           handler: ((job: any, worker: any, complete: any) =>
-              value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
+            value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
           options: {},
           onConnectionError: undefined
         };

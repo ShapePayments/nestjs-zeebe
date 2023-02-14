@@ -5,8 +5,6 @@ import { ZeebeClientOptions, ZeebeAsyncOptions } from './zeebe.interfaces';
 
 @Module({})
 export class ZeebeModule implements OnModuleDestroy {
-  constructor() {}
-
   public static forRoot(options: ZeebeClientOptions): DynamicModule {
     const optionsProviders: Provider[] = [];
     const connectionProviders: Provider[] = [];
@@ -65,7 +63,7 @@ export class ZeebeModule implements OnModuleDestroy {
     };
   }
 
-  onModuleDestroy() {
+  onModuleDestroy(): void {
     Logger.log('Zeebe Module destroyed');
   }
 }
