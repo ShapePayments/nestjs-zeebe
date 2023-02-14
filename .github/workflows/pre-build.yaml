@@ -16,7 +16,7 @@ env:
 jobs:
   pre:
     name: .pre
-    runs-on: ubuntu
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Build information
@@ -27,11 +27,10 @@ jobs:
 
   check:
     name: Analyze code
-    runs-on: [ ubuntu]
+    runs-on: ubuntu-22.04
     needs: [ pre ]
     container:
       image: node:18.12.1
-      options: "-u 2001"
 
     steps:
       - name: Check out repository code
@@ -72,7 +71,7 @@ jobs:
 
   post:
     name: .post
-    runs-on: ubuntu
+    runs-on: ubuntu-22.04
     needs: [pre, check]
 
     steps:
