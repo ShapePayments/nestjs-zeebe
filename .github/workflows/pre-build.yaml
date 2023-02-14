@@ -52,10 +52,10 @@ jobs:
         run: npx eslint "src/**/*.ts" -f json -o .report/eslint.json
 
       - name: Build
-        run: tsc
+        run: npx tsc
 
       - name: Run Unit-tests
-        run: jest --coverage
+        run: npx jest --coverage
 
       - name: SonarQube Analyzer
         uses: sonarsource/sonarqube-scan-action@master
