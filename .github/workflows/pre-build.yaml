@@ -23,8 +23,9 @@ jobs:
         run: |
           echo "The job was automatically triggered by a ${{ github.event_name }} event." && \
           echo "This job is now running on a ${{ runner.os }}!" && \
-          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}." \
-          whoami
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Current user
+        run: whoami
 
   check:
     name: Analyze code
