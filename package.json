@@ -1,6 +1,6 @@
 {
   "name": "@shapetech/nestjs-zeebe",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Zeebe microservice module and client for nestjs",
   "main": "dist/index.js",
   "repository": {
