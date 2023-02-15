@@ -1,5 +1,5 @@
 {
-  "name": "@shapepayments/nestjs-zeebe",
+  "name": "@shapetech/nestjs-zeebe",
   "version": "8.1.0",
   "description": "Zeebe microservice module and client for nestjs",
   "main": "dist/index.js",
