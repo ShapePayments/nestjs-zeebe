@@ -1,10 +1,10 @@
 {
-  "name": "nestjs-zeebe",
+  "name": "@shapepayments/nestjs-zeebe",
   "version": "8.1.0",
   "description": "Zeebe microservice module and client for nestjs",
   "main": "dist/index.js",
   "repository": {
-    "url": "https://github.com/danshapir/nestjs-zeebe.git",
+    "url": "https://github.com/ShapePayments/nestjs-zeebe.git",
     "type": "git"
   },
   "scripts": {
