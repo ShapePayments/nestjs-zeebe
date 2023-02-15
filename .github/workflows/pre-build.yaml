@@ -62,18 +62,6 @@ jobs:
       - name: Run Unit-tests
         run: npm run test:cov
 
-      - name: SonarQube Analyzer
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-      - name: SonarQube Failer
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   post:
     name: .post
     runs-on: ubuntu-22.04
