@@ -5,6 +5,10 @@ import { ZBClient, ZBWorkerTaskHandler } from 'zeebe-node';
 import * as process from 'process';
 import { ZeebeWorkerProperties } from '../zeebe.interfaces';
 
+function isKeyZeebeWorker(obj: any): obj is ZeebeWorkerProperties {
+  return 'type' in obj && !('rpc' in obj);
+}
+
 /**
  * A customer transport for Zeebe.
  *
@@ -30,23 +34,28 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
 
   private init(): void {
     const handlers = this.getHandlers();
-    handlers.forEach((value, key: any) => {
-      if (typeof key === 'string' && key.includes('{')) {
-        const workerOptions = {
-          id: '',
-          taskType: '',
-          handler: ((job: any, worker: any, complete: any) =>
-            value(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
-          options: {},
-          onConnectionError: undefined
-        };
+
+    for (const [key, handler] of handlers.entries()) {
+      if (typeof key === 'string' && key.trim().startsWith('{')) {
         // See if it's a json, if so use it's data
         try {
           const jsonKey = JSON.parse(key) as ZeebeWorkerProperties;
-          workerOptions.taskType = jsonKey.type;
-          workerOptions.options = jsonKey.options || {};
+
+          if (!isKeyZeebeWorker(jsonKey)) {
+            continue;
+          }
+
+          const workerOptions = {
+            id: '',
+            taskType: jsonKey.type,
+            handler: ((job: any, worker: any, complete: any) =>
+              handler(job, { complete, worker }) as any) as ZBWorkerTaskHandler,
+            options: jsonKey.options || {},
+            onConnectionError: undefined
+          };
 
           workerOptions.id = `${workerOptions.taskType}_${process.pid}`;
+
           //workerOptions.id, workerOptions.taskType, workerOptions.handler, workerOptions.options
           this.client.createWorker({
             id: workerOptions.id,
@@ -58,6 +67,6 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
           this.logger.error('Zeebe error:', ex);
         }
       }
-    });
+    }
   }
 }
