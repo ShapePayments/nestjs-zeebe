@@ -1,0 +1,72 @@
+name: CI Pre-build
+run-name: Test project before building ${{ github.actor }}
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: eu-west-1
+
+jobs:
+  pre:
+    name: .pre
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Build information
+        run: |
+          echo "The job was automatically triggered by a ${{ github.event_name }} event." && \
+          echo "This job is now running on a ${{ runner.os }}!" && \
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Current user
+        run: whoami
+
+  check:
+    name: Analyze code
+    runs-on: ubuntu-22.04
+    needs: [ pre ]
+    container:
+      image: node:18.12.1
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Current user
+        run: whoami
+
+      - name: List files in the repository
+        run: "ls -la"
+
+      - name: Audit modules
+        run: npm audit --audit-level critical
+
+      - name: Prepare
+        run: npm i --ignore-scripts
+
+      - name: Check prettiness of the code
+        run: npx prettier -c "src/**/*.ts"
+
+      - name: Lint the code
+        run: npx eslint "src/**/*.ts" -f json -o .report/eslint.json
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Unit-tests
+        run: npm run test:cov
+
+  post:
+    name: .post
+    runs-on: ubuntu-22.04
+    needs: [pre, check]
+
+    steps:
+      - name: Pre job results
+        run: echo "Checking has finished"
