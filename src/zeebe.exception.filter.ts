@@ -15,7 +15,7 @@ export class ZeebeExceptionFilter extends BaseRpcExceptionFilter {
 
   catch(exception: any, host: ArgumentsHost): Observable<any> {
     this.logger.error({ message: 'Exception during zeebe worker', exception });
+
     throw exception;
-    //return super.catch(exception, host);
   }
 }

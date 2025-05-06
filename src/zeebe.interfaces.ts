@@ -1,12 +1,11 @@
+import { Zeebe } from '@camunda8/sdk';
 import {
-  ZBWorkerOptions,
-  ZBClientOptions,
-  Job,
-  JobCompletionInterface,
-  IOutputVariables,
-  IInputVariables,
-  ICustomHeaders
-} from 'zeebe-node';
+  IZBJobWorker,
+  ZBWorkerConfig,
+  ZeebeJob as OriginalZeebeJob
+} from '@camunda8/sdk/dist/zeebe/lib/interfaces-1.0';
+
+export type ZBWorkerOptions = Zeebe.ZBWorker<any, any, any>;
 
 /**
  *
@@ -19,6 +18,10 @@ export interface ZeebeWorkerProperties {
   options?: ZBWorkerOptions;
 }
 
+export interface ZeebeWorkerConfig extends ZBWorkerConfig<any, any, any> {
+  id: string;
+}
+
 /**
  *
  *
@@ -27,7 +30,7 @@ export interface ZeebeWorkerProperties {
  */
 export interface ZeebeClientOptions {
   gatewayAddress: string;
-  options?: ZBWorkerOptions & ZBClientOptions;
+  options?: ZBWorkerOptions;
 }
 
 /**
@@ -47,7 +50,8 @@ export interface ZeebeAsyncOptions {
  *
  * @export
  * @interface ZeebeJob
- * @extends {Job<IInputVariables, ICustomHeaders>}
- * @extends {JobCompletionInterface<IOutputVariables>}
+ * @extends {OriginalZeebeJob}
  */
-export interface ZeebeJob extends Job<IInputVariables, ICustomHeaders>, JobCompletionInterface<IOutputVariables> {}
+export type ZeebeJob = OriginalZeebeJob;
+
+export type ZeebeJobWorker = IZBJobWorker;
