@@ -1,8 +1,9 @@
-import { ZeebeModule } from './zeebe.module';
 import { Injectable, Module } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ZEEBE_CONNECTION_PROVIDER } from './zeebe.constans';
-import { ZBClient } from 'zeebe-node';
+import { Zeebe } from '@camunda8/sdk';
+
+import { ZeebeModule } from './zeebe.module';
+import { ZEEBE_CONNECTION_PROVIDER } from './zeebe.constants';
 
 describe('Zeebe module', () => {
   it('boots successfully', async () => {
@@ -10,7 +11,7 @@ describe('Zeebe module', () => {
       imports: [ZeebeModule.forRoot({ gatewayAddress: 'localhost:26500' })]
     }).compile();
 
-    expect(rootModule.get(ZEEBE_CONNECTION_PROVIDER)).toBeInstanceOf(ZBClient);
+    expect(rootModule.get(ZEEBE_CONNECTION_PROVIDER)).toBeInstanceOf(Zeebe.ZeebeGrpcClient);
   });
 
   it('boots successfully asynchronously', async () => {
@@ -40,6 +41,6 @@ describe('Zeebe module', () => {
     const app = rootModule.createNestApplication();
     await app.init();
 
-    expect(rootModule.get(ZEEBE_CONNECTION_PROVIDER)).toBeInstanceOf(ZBClient);
+    expect(rootModule.get(ZEEBE_CONNECTION_PROVIDER)).toBeInstanceOf(Zeebe.ZeebeGrpcClient);
   });
 });

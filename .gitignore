@@ -1,8 +1,129 @@
+# compiled output
 /dist
-/node_modules
+
+# modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE
+/.awcache
+/.vscode
+/.devcontainer
+*.code-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# misc
+.DS_Store
+lerna-debug.log
+npm-debug.log
+yarn-error.log
+/**/npm-debug.log
+/libs/**/.npmignore
+/libs/**/LICENSE
+/apps/**/.npmignore
+/apps/**/LICENSE
+*.tsbuildinfo
+
+# example
+/quick-start
+/example_dist
+/example
+
+# tests
+/test
+/benchmarks/memory
 /coverage
 /.nyc_output
-test-results.xml
-.history
-.idea
+/apps/graphql
+build/config\.gypi
+
+# Env and configuration files
+.env
+.env.pass
+.env.key
+.env.local
+
+# bundle
+packages/**/*.d.ts
+packages/**/*.js
+libs/**/*.d.ts
+apps/**/*.d.ts
+libs/**/dist
+apps/**/dist
+
+# reports
 .report
+
+# java-project
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store

@@ -1,6 +1,7 @@
 import { Module, OnModuleDestroy, DynamicModule, Provider, Logger } from '@nestjs/common';
-import * as ZB from 'zeebe-node';
-import { ZEEBE_OPTIONS_PROVIDER, ZEEBE_CONNECTION_PROVIDER } from './zeebe.constans';
+import { Camunda8, Zeebe } from '@camunda8/sdk';
+
+import { ZEEBE_OPTIONS_PROVIDER, ZEEBE_CONNECTION_PROVIDER } from './zeebe.constants';
 import { ZeebeClientOptions, ZeebeAsyncOptions } from './zeebe.interfaces';
 
 @Module({})
@@ -57,8 +58,14 @@ export class ZeebeModule implements OnModuleDestroy {
   private static createConnectionProvider(): Provider {
     return {
       provide: ZEEBE_CONNECTION_PROVIDER,
-      //TODO resolve host url: do I need to? Seems to work aready? Just verify
-      useFactory: async (config: ZeebeClientOptions) => new ZB.ZBClient(config.gatewayAddress, config.options),
+      useFactory: async (config: ZeebeClientOptions): Promise<Zeebe.ZeebeGrpcClient> => {
+        const camunda = new Camunda8({
+          CAMUNDA_OAUTH_DISABLED: true,
+          ZEEBE_ADDRESS: config.gatewayAddress
+        });
+
+        return camunda.getZeebeGrpcApiClient();
+      },
       inject: [ZEEBE_OPTIONS_PROVIDER]
     };
   }
