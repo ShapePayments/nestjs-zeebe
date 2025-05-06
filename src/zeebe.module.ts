@@ -59,7 +59,10 @@ export class ZeebeModule implements OnModuleDestroy {
     return {
       provide: ZEEBE_CONNECTION_PROVIDER,
       useFactory: async (config: ZeebeClientOptions): Promise<Zeebe.ZeebeGrpcClient> => {
-        const camunda = new Camunda8();
+        const camunda = new Camunda8({
+          CAMUNDA_OAUTH_DISABLED: true,
+          ZEEBE_ADDRESS: config.gatewayAddress
+        });
 
         return camunda.getZeebeGrpcApiClient();
       },
