@@ -1,0 +1,74 @@
+name: CI Build
+run-name: Build project by ${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: eu-west-1
+  BUILD_ARTIFACTS_DIR: 'artifacts/deploy'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  pre:
+    name: .pre
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Build information
+        run: |
+          echo "The job was automatically triggered by a ${{ github.event_name }} event." && \
+          echo "This job is now running on a ${{ runner.os }}!" && \
+          echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+  build_nodejs:
+    name: Build & Publish Node.js library
+    runs-on: ubuntu-24.04
+    needs: [ pre ]
+
+    container:
+      image: node:22.15.0
+      options: "-u 1001"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          registry: 'https://npm.pkg.github.com'
+          access: restricted
+
+  post:
+    name: .post
+    runs-on: ubuntu-24.04
+    needs: [ pre, build_nodejs ]
+
+    steps:
+      - name: Post build
+        run: echo "Building has finished"
+

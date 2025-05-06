@@ -12,11 +12,12 @@ concurrency:
 
 env:
   AWS_REGION: eu-west-1
+  WORK_DIR: pr-${{ github.sha }}
 
 jobs:
   pre:
     name: .pre
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Build information
@@ -24,25 +25,25 @@ jobs:
           echo "The job was automatically triggered by a ${{ github.event_name }} event." && \
           echo "This job is now running on a ${{ runner.os }}!" && \
           echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Current user
-        run: whoami
 
   check:
     name: Analyze code
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [ pre ]
+
     container:
-      image: node:18.12.1
+      image: node:22.15.0
+      options: "-u 1001"
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
-
-      - name: Current user
-        run: whoami
-
-      - name: List files in the repository
-        run: "ls -la"
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.WORK_DIR }}
 
       - name: Audit modules
         run: npm audit --audit-level critical
@@ -55,9 +56,6 @@ jobs:
 
       - name: Lint the code
         run: npx eslint "src/**/*.ts" -f json -o .report/eslint.json
-
-      - name: Build
-        run: npm run build
 
       - name: Run Unit-tests
         run: npm run test:cov
