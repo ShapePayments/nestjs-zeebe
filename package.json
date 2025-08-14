@@ -1,6 +1,6 @@
 {
   "name": "@shapepayments/nestjs-zeebe",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "Zeebe microservice module and client for nestjs",
   "main": "dist/index.js",
   "repository": {
@@ -99,6 +99,7 @@
     "moduleNameMapper": {}
   },
   "dependencies": {
-    "@camunda8/sdk": "8.7.28"
+    "@camunda8/sdk": "8.7.28",
+    "globals": "16.3.0"
   }
 }
