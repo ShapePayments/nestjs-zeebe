@@ -1,6 +1,6 @@
 {
   "name": "@shapepayments/nestjs-zeebe",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "description": "Zeebe microservice module and client for nestjs",
   "main": "dist/index.js",
   "repository": {
