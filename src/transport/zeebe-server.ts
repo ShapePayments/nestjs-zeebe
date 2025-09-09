@@ -29,7 +29,7 @@ interface Handler extends MessageHandler<ZeebeJob, HandlerContext, JOB_ACTION_AC
  */
 @Injectable()
 export class ZeebeServer extends Server implements CustomTransportStrategy {
-  private workers: Map<string, Zeebe.ZBWorker<any, any, any>>;
+  private workers: Map<string, Zeebe.ZBWorker<any, any, any>> = new Map();
 
   constructor(
     @Inject(ZEEBE_CONNECTION_PROVIDER)
