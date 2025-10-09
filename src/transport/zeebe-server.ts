@@ -7,7 +7,7 @@ import { Zeebe } from '@camunda8/sdk';
 import { ZEEBE_CONNECTION_PROVIDER } from '../zeebe.constants';
 import { ZeebeJob, ZeebeJobWorker, ZeebeWorkerConfig, ZeebeWorkerProperties } from '../zeebe.interfaces';
 
-function isKeyZeebeWorker(obj: any): obj is ZeebeWorkerProperties {
+function isKeyZeebeWorker<I, H, O>(obj: any): obj is ZeebeWorkerProperties<I, H, O> {
   return 'type' in obj && !('rpc' in obj);
 }
 
@@ -15,8 +15,8 @@ interface HandlerContext {
   worker: ZeebeJobWorker;
 }
 
-interface Handler extends MessageHandler<ZeebeJob, HandlerContext, JOB_ACTION_ACKNOWLEDGEMENT> {
-  (job: ZeebeJob, context: HandlerContext): Promise<JOB_ACTION_ACKNOWLEDGEMENT>;
+interface Handler<I, H, O> extends MessageHandler<ZeebeJob<I, H, O>, HandlerContext, JOB_ACTION_ACKNOWLEDGEMENT> {
+  (job: ZeebeJob<I, H, O>, context: HandlerContext): Promise<JOB_ACTION_ACKNOWLEDGEMENT>;
 }
 
 /**
@@ -70,7 +70,7 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
         continue;
       }
 
-      const workerConfig = this.createWorkerConfig(keyData, handler as Handler);
+      const workerConfig = this.createWorkerConfig(keyData, handler as Handler<any, any, any>);
 
       if (!this.workers.has(workerConfig.id)) {
         const worker = this.client.createWorker(workerConfig);
@@ -80,10 +80,10 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
     }
   }
 
-  private parseHandlerKey(key: string): ZeebeWorkerProperties | null {
+  private parseHandlerKey<I, H, O>(key: string): ZeebeWorkerProperties<I, H, O> | null {
     if (key.trim().startsWith('{')) {
       try {
-        const jsonData = JSON.parse(key) as ZeebeWorkerProperties;
+        const jsonData = JSON.parse(key) as ZeebeWorkerProperties<I, H, O>;
 
         return jsonData;
       } catch (ex: any) {
@@ -96,13 +96,16 @@ export class ZeebeServer extends Server implements CustomTransportStrategy {
     return null;
   }
 
-  private createWorkerConfig(properties: ZeebeWorkerProperties, handler: Handler): ZeebeWorkerConfig {
+  private createWorkerConfig<I, H, O>(
+    properties: ZeebeWorkerProperties<I, H, O>,
+    handler: Handler<I, H, O>
+  ): ZeebeWorkerConfig<I, H, O> {
     const workerId = `${properties.type}_${process.pid}`;
 
     return {
       id: workerId,
       taskType: properties.type,
-      taskHandler: (job: ZeebeJob, worker: ZeebeJobWorker) =>
+      taskHandler: (job: ZeebeJob<I, H, O>, worker: ZeebeJobWorker) =>
         handler(job, { worker }) as Promise<JOB_ACTION_ACKNOWLEDGEMENT>,
       onConnectionError: undefined
     };
