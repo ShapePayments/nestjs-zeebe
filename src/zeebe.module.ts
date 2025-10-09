@@ -6,7 +6,7 @@ import { ZeebeClientOptions, ZeebeAsyncOptions } from './zeebe.interfaces';
 
 @Module({})
 export class ZeebeModule implements OnModuleDestroy {
-  public static forRoot(options: ZeebeClientOptions): DynamicModule {
+  public static forRoot<I, H, O>(options: ZeebeClientOptions<I, H, O>): DynamicModule {
     const optionsProviders: Provider[] = [];
     const connectionProviders: Provider[] = [];
 
@@ -22,7 +22,7 @@ export class ZeebeModule implements OnModuleDestroy {
     };
   }
 
-  public static forRootAsync(options: ZeebeAsyncOptions): DynamicModule {
+  public static forRootAsync<I, H, O>(options: ZeebeAsyncOptions<I, H, O>): DynamicModule {
     const connectionProviders: Provider[] = [];
     connectionProviders.push(this.createConnectionProvider());
 
@@ -48,17 +48,17 @@ export class ZeebeModule implements OnModuleDestroy {
     };
   }
 
-  private static createOptionsProvider(options: ZeebeClientOptions): Provider {
+  private static createOptionsProvider<I, H, O>(options: ZeebeClientOptions<I, H, O>): Provider {
     return {
       provide: ZEEBE_OPTIONS_PROVIDER,
       useValue: options
     };
   }
 
-  private static createConnectionProvider(): Provider {
+  private static createConnectionProvider<I, H, O>(): Provider {
     return {
       provide: ZEEBE_CONNECTION_PROVIDER,
-      useFactory: async (config: ZeebeClientOptions): Promise<Zeebe.ZeebeGrpcClient> => {
+      useFactory: async (config: ZeebeClientOptions<I, H, O>): Promise<Zeebe.ZeebeGrpcClient> => {
         const camunda = new Camunda8({
           CAMUNDA_AUTH_STRATEGY: 'NONE',
           CAMUNDA_OAUTH_DISABLED: true,

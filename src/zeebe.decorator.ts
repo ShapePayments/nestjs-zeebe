@@ -23,7 +23,7 @@ import { ZBWorkerOptions } from './zeebe.interfaces';
 //   };
 // };
 
-export function ZeebeWorker(type: string, options?: ZBWorkerOptions): MethodDecorator {
+export function ZeebeWorker<I, H, O>(type: string, options?: ZBWorkerOptions<I, H, O>): MethodDecorator {
   return applyDecorators(
     UseFilters(new ZeebeExceptionFilter()),
     MessagePattern({ type, options: options || null }, Transport.TCP)
