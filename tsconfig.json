@@ -28,6 +28,7 @@
     "rootDir": "./src",
     "baseUrl": "./",
     "outDir": "./dist",
-    "paths": {}
+    "paths": {},
+    "ignoreDeprecations": "6.0"
   }
 }
