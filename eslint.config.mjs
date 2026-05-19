@@ -34,7 +34,7 @@ export default defineConfig([globalIgnores(["**/.eslintrc.js", "**/node_modules/
 
         parserOptions: {
             project: "tsconfig.json",
-            tsconfigRootDir: ".",
+            tsconfigRootDir: __dirname,
         },
     },
 
